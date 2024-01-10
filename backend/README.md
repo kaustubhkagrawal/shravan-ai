@@ -5,6 +5,7 @@ This is a [LlamaIndex](https://www.llamaindex.ai/) project using [FastAPI](https
 First, setup the environment:
 
 ```
+poetry config virtualenvs.in-project true # For loading properly in vscode 
 poetry install
 poetry shell
 ```
