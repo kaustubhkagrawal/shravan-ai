@@ -9,8 +9,9 @@ from llama_index.llms.base import ChatMessage
 from llama_index.llms.types import MessageRole
 from pydantic import BaseModel
 
-chat_router = r = APIRouter()
+from app.prompts.personalities import DR_SHRAVAN
 
+chat_router = r = APIRouter()
 
 class _Message(BaseModel):
     role: MessageRole
@@ -40,13 +41,17 @@ async def chat(
             detail="Last message must be from user",
         )
     # convert messages coming from the request to type ChatMessage
-    messages = [
+    messages = [ChatMessage(role=MessageRole.SYSTEM, content=DR_SHRAVAN)] +  [
         ChatMessage(
             role=m.role,
             content=m.content,
         )
         for m in data.messages
     ]
+    
+        
+    # for m in data.messages:
+    #     print(m.content)
 
     # query chat engine
     response = chat_engine.stream_chat(lastMessage.content, messages)
