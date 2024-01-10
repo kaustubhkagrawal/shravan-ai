@@ -9,9 +9,12 @@ from llama_index.llms.base import ChatMessage
 from llama_index.llms.types import MessageRole
 from pydantic import BaseModel
 
-from app.prompts.personalities import DR_SHRAVAN
+from app.prompts.system import SYSTEM_PROMPT
+
+system_prompt = ""
 
 chat_router = r = APIRouter()
+
 
 class _Message(BaseModel):
     role: MessageRole
@@ -40,16 +43,20 @@ async def chat(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Last message must be from user",
         )
+
+    with open("app/prompts/system_prompt.txt", "r") as file:
+        system_prompt = file.read()
+
+    print(system_prompt)
     # convert messages coming from the request to type ChatMessage
-    messages = [ChatMessage(role=MessageRole.SYSTEM, content=DR_SHRAVAN)] +  [
+    messages = [ChatMessage(role=MessageRole.SYSTEM, content=system_prompt)] + [
         ChatMessage(
             role=m.role,
             content=m.content,
         )
         for m in data.messages
     ]
-    
-        
+
     # for m in data.messages:
     #     print(m.content)
 
