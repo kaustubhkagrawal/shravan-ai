@@ -4,6 +4,7 @@ import FileUploader from "../file-uploader";
 import { Input } from "../input";
 import UploadImagePreview from "../upload-image-preview";
 import { ChatHandler } from "./chat.interface";
+import AudioRecorder from "./audio-recorder";
 
 export default function ChatInput(
   props: Pick<
@@ -19,6 +20,7 @@ export default function ChatInput(
   }
 ) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (imageUrl) {
@@ -26,6 +28,15 @@ export default function ChatInput(
         data: { imageUrl: imageUrl },
       });
       setImageUrl(null);
+      return;
+    }
+
+    console.log({ audioUrl });
+    if (audioUrl) {
+      props.handleSubmit(e, {
+        data: { audioUrl: audioUrl },
+      });
+      setAudioUrl(null);
       return;
     }
     props.handleSubmit(e);
@@ -75,6 +86,7 @@ export default function ChatInput(
           onFileUpload={handleUploadFile}
           onFileError={props.onFileError}
         /> */}
+        <AudioRecorder setAudioUrl={setAudioUrl} />
         <Button type="submit" disabled={props.isLoading}>
           Send message
         </Button>

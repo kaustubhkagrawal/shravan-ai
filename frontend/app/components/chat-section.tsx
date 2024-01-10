@@ -2,8 +2,11 @@
 
 import { useChat } from "ai/react";
 import { ChatInput, ChatMessages } from "./ui/chat";
+import { useState } from "react";
 
 export default function ChatSection() {
+  const [extraFormData, setExtraFormData] = useState(new FormData());
+
   const {
     messages,
     input,
