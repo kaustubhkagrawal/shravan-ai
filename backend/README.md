@@ -24,6 +24,12 @@ Second, generate the embeddings of the documents in the `./data` directory (if t
 python app/engine/generate.py
 ```
 
+Download data from mind.org.uk and NHS.uk:
+
+```
+python app/repository/get_data.py
+```
+
 Third, run the development server:
 
 ```

@@ -58,5 +58,10 @@ async def chat(
             if await request.is_disconnected():
                 break
             yield token
+            # response_started = False
+            # if "Response:" in token:
+            #     response_started = True
+            # if response_started:
+            #     yield token
 
     return StreamingResponse(event_generator(), media_type="text/plain")
