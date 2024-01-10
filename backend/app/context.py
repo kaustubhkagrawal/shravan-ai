@@ -34,7 +34,7 @@ def create_base_context():
     return ServiceContext.from_defaults(
         # llm = llm
         llm = Perplexity(
-            api_key=pplx_api_key, model="mixtral-8x7b-instruct", temperature=0.5
+            api_key=pplx_api_key, model="mixtral-8x7b-instruct", temperature=0.8
         ), 
         embed_model='local'
         # llm  = OpenAI(model=model, temperature=0.5)

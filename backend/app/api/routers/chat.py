@@ -56,9 +56,7 @@ async def chat(
         )
         for m in data.messages
     ]
-
-    # for m in data.messages:
-    #     print(m.content)
+    
 
     # query chat engine
     response = chat_engine.stream_chat(lastMessage.content, messages)
@@ -70,10 +68,5 @@ async def chat(
             if await request.is_disconnected():
                 break
             yield token
-            # response_started = False
-            # if "Response:" in token:
-            #     response_started = True
-            # if response_started:
-            #     yield token
 
     return StreamingResponse(event_generator(), media_type="text/plain")
