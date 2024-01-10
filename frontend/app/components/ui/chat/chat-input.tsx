@@ -16,7 +16,7 @@ export default function ChatInput(
     | "handleInputChange"
   > & {
     multiModal?: boolean;
-  },
+  }
 ) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -43,16 +43,16 @@ export default function ChatInput(
     setImageUrl(base64);
   };
 
-  const handleUploadFile = async (file: File) => {
-    try {
-      if (props.multiModal && file.type.startsWith("image/")) {
-        return await handleUploadImageFile(file);
-      }
-      props.onFileUpload?.(file);
-    } catch (error: any) {
-      props.onFileError?.(error.message);
-    }
-  };
+  // const handleUploadFile = async (file: File) => {
+  //   try {
+  //     if (props.multiModal && file.type.startsWith("image/")) {
+  //       return await handleUploadImageFile(file);
+  //     }
+  //     props.onFileUpload?.(file);
+  //   } catch (error: any) {
+  //     props.onFileError?.(error.message);
+  //   }
+  // };
 
   return (
     <form
@@ -71,10 +71,10 @@ export default function ChatInput(
           value={props.input}
           onChange={props.handleInputChange}
         />
-        <FileUploader
+        {/* <FileUploader
           onFileUpload={handleUploadFile}
           onFileError={props.onFileError}
-        />
+        /> */}
         <Button type="submit" disabled={props.isLoading}>
           Send message
         </Button>
