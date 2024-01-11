@@ -120,7 +120,7 @@ async def emotion(
             detail="No messages provided",
         )
     try:
-        concatenated_messages = "\n".join(message.content for message in data.messages)
+        concatenated_messages = "\n".join(message.content for message in data.messages if message.role == MessageRole.USER)
         emotion_output = await get_emotion_detection_output(concatenated_messages)
         return emotion_output.emotion
     except Exception as e:

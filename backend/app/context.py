@@ -34,7 +34,7 @@ def create_base_context():
     return ServiceContext.from_defaults(
         # llm = llm
         llm = Perplexity(
-            api_key=pplx_api_key, model="mistral-7b-instruct", temperature=0.8
+            api_key=pplx_api_key, model="codellama-34b-instruct", temperature=0.8
         ), 
         embed_model='local'
     )
