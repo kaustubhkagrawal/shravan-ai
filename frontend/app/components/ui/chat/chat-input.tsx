@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../button";
 import FileUploader from "../file-uploader";
 import { Input } from "../input";
@@ -15,12 +15,15 @@ export default function ChatInput(
     | "onFileError"
     | "handleSubmit"
     | "handleInputChange"
+    | "setInput"
   > & {
     multiModal?: boolean;
   }
 ) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (imageUrl) {
@@ -65,8 +68,13 @@ export default function ChatInput(
   //   }
   // };
 
+  const handleAudioRecorderStop = (audioUrl: string) => {
+    setAudioUrl(audioUrl);
+  };
+
   return (
     <form
+      ref={formRef}
       onSubmit={onSubmit}
       className="rounded-xl bg-white p-4 shadow-xl space-y-4"
     >
@@ -74,6 +82,10 @@ export default function ChatInput(
         <UploadImagePreview url={imageUrl} onRemove={onRemovePreviewImage} />
       )}
       <div className="flex w-full items-start justify-between gap-4 ">
+        <AudioRecorder
+          setInput={props.setInput}
+          setAudioUrl={handleAudioRecorderStop}
+        />
         <Input
           autoFocus
           name="message"
@@ -86,8 +98,11 @@ export default function ChatInput(
           onFileUpload={handleUploadFile}
           onFileError={props.onFileError}
         /> */}
-        <AudioRecorder setAudioUrl={setAudioUrl} />
-        <Button type="submit" disabled={props.isLoading}>
+        <Button
+          type="submit"
+          className="disabled:bg-slate-500"
+          disabled={props.isLoading}
+        >
           Send message
         </Button>
       </div>

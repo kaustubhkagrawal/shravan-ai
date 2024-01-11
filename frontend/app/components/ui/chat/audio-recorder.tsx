@@ -1,11 +1,16 @@
 import { useState, useRef } from "react";
 import { useVoiceRecorder } from "../../../hooks/use-voice-recorder";
+import { Mic, MicOff, Square, StopCircle } from "lucide-react";
 
+import axios from "axios";
+import { envConfig } from "@/app/config/env.config";
 interface AudioRecorderProps {
   setAudioUrl: (value: string) => void;
+  setInput?: (value: string) => void;
 }
 
-const AudioRecorder = ({ setAudioUrl }: AudioRecorderProps) => {
+const AudioRecorder = ({ setInput }: AudioRecorderProps) => {
+  const [audioUrl, setAudioUrl] = useState("");
   const [records, updateRecords] = useState<string[]>([]);
 
   const blobToBase64 = (blob: Blob) => {
@@ -21,63 +26,45 @@ const AudioRecorder = ({ setAudioUrl }: AudioRecorderProps) => {
     updateRecords([...records, window.URL.createObjectURL(data)]);
 
     blobToBase64(data).then((result: string) => {
-      setAudioUrl(result);
+      transcribeAudio(result);
     });
   });
-  // const [isRecording, setIsRecording] = useState(false);
-  // const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  // const audioChunksRef = useRef<Blob[]>([]);
 
-  // const startRecording = async () => {
-  //   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  //   mediaRecorderRef.current = new MediaRecorder(stream);
-  //   mediaRecorderRef.current.addEventListener("dataavailable", (event) => {
-  //     if (event.data.size > 0) {
-  //       audioChunksRef.current.push(event.data);
-  //     }
-  //   });
-  //   mediaRecorderRef.current.start();
-  //   setIsRecording(true);
-  // };
+  const transcribeAudio = (audioUrl: string) => {
+    axios
+      .post(`${envConfig.apiURL}/voice`, {
+        audioUrl,
+      })
+      .then((response) => {
+        setInput?.((response?.data as string) ?? "");
+      })
+      .catch((err) => console.log(err));
+  };
 
-  // const stopRecording = () => {
-  //   mediaRecorderRef.current?.stop();
-  //   setIsRecording(false);
-  //   saveRecording();
-  // };
-
-  // const saveRecording = () => {
-  //   const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
-  //   const audioUrl = URL.createObjectURL(audioBlob);
-
-  //   setAudioUrl(audioUrl);
-
-  //   // You can now send `audioBlob` to the server using the API
-  // };
-
-  // // const handleUploadAudioFile = async (file: File) => {
-  // //   const base64 = await new Promise<string>((resolve, reject) => {
-  // //     const reader = new FileReader();
-  // //     reader.readAsDataURL(file);
-  // //     reader.onload = () => resolve(reader.result as string);
-  // //     reader.onerror = (error) => reject(error);
-  // //   });
-  // //   setAudioUrl(base64);
-  // // };
+  const handleStart = (e) => {
+    // e.preventDefault();
+    // setInput?.(" ");
+    start();
+  };
 
   return (
     <div>
-      <button onClick={isRecording ? stop : start}>
-        {isRecording ? "Stop Recording" : "Start Recording"}
+      <button
+        type={isRecording ? "submit" : "button"}
+        className={`rounded-full relative ${
+          isRecording ? "bg-red-500" : "bg-green-500"
+        } p-2`}
+        onClick={isRecording ? stop : handleStart}
+      >
+        {isRecording ? (
+          <span className="animate-ping absolute inline-flex left-0 top-0 h-full w-full rounded-full bg-red-400 opacity-75"></span>
+        ) : null}
+        {isRecording ? (
+          <Square color="white" size={20} />
+        ) : (
+          <Mic color="white" size={20} />
+        )}
       </button>
-      {/* <>
-        {records.map((data, idx) => (
-          <div key={idx}>
-            <audio src={data} controls preload={"metadata"} />
-          </div>
-        ))}
-      </> */}
-      {/* {isRecording || <button onClick={saveRecording}>Save Recording</button>} */}
     </div>
   );
 };
