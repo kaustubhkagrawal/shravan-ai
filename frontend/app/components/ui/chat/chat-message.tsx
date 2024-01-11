@@ -1,13 +1,16 @@
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Smile } from "lucide-react";
 
 import { Button } from "../button";
 import ChatAvatar from "./chat-avatar";
 import { Message } from "./chat.interface";
 import Markdown from "./markdown";
 import { useCopyToClipboard } from "./use-copy-to-clipboard";
+import Image from "next/image";
 
 export default function ChatMessage(chatMessage: Message) {
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 });
+
+  const emotion = "sad";
   return (
     <div className="flex items-start gap-4 pr-5 pt-5">
       <ChatAvatar role={chatMessage.role} />
@@ -19,7 +22,7 @@ export default function ChatMessage(chatMessage: Message) {
           onClick={() => copyToClipboard(chatMessage.content)}
           size="icon"
           variant="ghost"
-          className="h-8 w-8 opacity-0 group-hover:opacity-100"
+          className="h-8 w-8 opacity-80 group-hover:opacity-100"
         >
           {isCopied ? (
             <Check className="h-4 w-4" />

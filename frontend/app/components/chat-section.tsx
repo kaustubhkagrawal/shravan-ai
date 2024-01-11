@@ -4,8 +4,10 @@ import { useChat } from "ai/react";
 import { ChatInput, ChatMessages } from "./ui/chat";
 import { useState } from "react";
 import { envConfig } from "../config/env.config";
+import axios from "axios";
+import Image from "next/image";
 
-export default function ChatSection() {
+export default function ChatSection({ handleEmotion }: any) {
   const [extraFormData, setExtraFormData] = useState(new FormData());
 
   const {
@@ -25,6 +27,13 @@ export default function ChatSection() {
     },
   });
 
+  const handleSubmitWrapper: typeof handleSubmit = (e) => {
+    handleSubmit(e);
+    if (messages.length > 0) {
+      handleEmotion(messages);
+    }
+  };
+
   return (
     <div className="space-y-4 max-w-5xl w-full">
       <ChatMessages
@@ -35,7 +44,7 @@ export default function ChatSection() {
       />
       <ChatInput
         input={input}
-        handleSubmit={handleSubmit}
+        handleSubmit={handleSubmitWrapper}
         setInput={setInput}
         handleInputChange={handleInputChange}
         isLoading={isLoading}
