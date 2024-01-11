@@ -37,5 +37,4 @@ def create_base_context():
             api_key=pplx_api_key, model="mistral-7b-instruct", temperature=0.8
         ), 
         embed_model='local'
-        # llm  = OpenAI(model=model, temperature=0.5)
     )
