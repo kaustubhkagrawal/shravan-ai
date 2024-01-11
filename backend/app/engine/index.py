@@ -25,4 +25,4 @@ def get_chat_engine():
     logger.info(f"Finished loading index from {STORAGE_DIR}")
     # The line `return index.as_chat_engine(chat_mode= ChatMode, verbose=False)` is returning an
     # instance of a chat engine.
-    return index.as_chat_engine(chat_mode= ChatMode.REACT, verbose=False)
+    return index.as_chat_engine(chat_mode= 'react', verbose=False)

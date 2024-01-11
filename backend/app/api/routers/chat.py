@@ -1,4 +1,7 @@
 from typing import List
+import base64
+import whisper
+import tempfile
 
 from fastapi.responses import StreamingResponse
 from llama_index.chat_engine.types import BaseChatEngine
@@ -20,17 +23,33 @@ class _Message(BaseModel):
     role: MessageRole
     content: str
 
+class _VoiceData(BaseModel):
+    audioUrl: str
 
-class _ChatData(BaseModel):
+class ApiRequest(BaseModel):
     messages: List[_Message]
+    data: _VoiceData
 
 
 @r.post("")
 async def chat(
     request: Request,
-    data: _ChatData,
+    data: ApiRequest,
     chat_engine: BaseChatEngine = Depends(get_chat_engine),
 ):
+    _, voice_base_64 = data.data.audioUrl.split(',',1)
+    audio_data = base64.b64decode(voice_base_64)
+    # save temp webm file
+    model = whisper.load_model("base")
+    with tempfile.NamedTemporaryFile(suffix=".webm") as temp:
+        temp.write(audio_data)
+        temp.seek(0)
+        result = model.transcribe(temp.name,language='en')
+    # remove last message
+    if len(data.messages) > 0:
+        data.messages.pop()
+    # append new user message 
+    data.messages.append(ChatMessage(role=MessageRole.USER, content=result["text"]))
     # check preconditions and get last message
     if len(data.messages) == 0:
         raise HTTPException(
@@ -47,7 +66,6 @@ async def chat(
     with open("app/prompts/system_prompt.txt", "r") as file:
         system_prompt = file.read()
 
-    print(system_prompt)
     # convert messages coming from the request to type ChatMessage
     messages = [ChatMessage(role=MessageRole.SYSTEM, content=system_prompt)] + [
         ChatMessage(
