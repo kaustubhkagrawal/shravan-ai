@@ -30,7 +30,6 @@ class ApiRequest(BaseModel):
     messages: List[_Message]
     data: _VoiceData
 
-
 @r.post("")
 async def chat(
     request: Request,
@@ -40,7 +39,7 @@ async def chat(
     _, voice_base_64 = data.data.audioUrl.split(',',1)
     audio_data = base64.b64decode(voice_base_64)
     # save temp webm file
-    model = whisper.load_model("base")
+    model = whisper.load_model("tiny")
     with tempfile.NamedTemporaryFile(suffix=".webm") as temp:
         temp.write(audio_data)
         temp.seek(0)
@@ -88,3 +87,33 @@ async def chat(
             yield token
 
     return StreamingResponse(event_generator(), media_type="text/plain")
+
+# define new router for transcribing voice input
+model = whisper.load_model("tiny")
+
+# Create a dependency that will provide the loaded model
+def get_model():
+    return model
+
+@r.post("/voice")
+
+async def voice(
+    voice_data: _VoiceData,
+    request: Request,
+    model: whisper.Whisper = Depends(get_model),  # Inject the model dependency
+) -> str:
+    try:
+        # Decode base64 voice data
+        audio_bytes = base64.b64decode(voice_data.base64)
+        # Write the audio data to a temporary file
+        with tempfile.NamedTemporaryFile(suffix=".webm") as temp:
+            temp.write(audio_bytes)
+            temp.seek(0)
+            result = model.transcribe(temp.name,language='en')
+        # Return the transcribed text
+        return result["text"]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
