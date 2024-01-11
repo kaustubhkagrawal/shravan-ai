@@ -102,9 +102,10 @@ async def voice(
     request: Request,
     model: whisper.Whisper = Depends(get_model),  # Inject the model dependency
 ) -> str:
+    _, voice_base_64 = voice_data.audioUrl.split(',',1)
     try:
         # Decode base64 voice data
-        audio_bytes = base64.b64decode(voice_data.base64)
+        audio_bytes = base64.b64decode(voice_base_64)
         # Write the audio data to a temporary file
         with tempfile.NamedTemporaryFile(suffix=".webm") as temp:
             temp.write(audio_bytes)
