@@ -6,6 +6,7 @@ import logging
 import os
 import uvicorn
 from app.api.routers.chat import chat_router
+from app.repository.get_data import get_data
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

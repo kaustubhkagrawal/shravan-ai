@@ -2,18 +2,24 @@
 
 import { useChat } from "ai/react";
 import { ChatInput, ChatMessages } from "./ui/chat";
+import { useState } from "react";
+import { envConfig } from "../config/env.config";
 
 export default function ChatSection() {
+  const [extraFormData, setExtraFormData] = useState(new FormData());
+
   const {
     messages,
     input,
+    setInput,
     isLoading,
     handleSubmit,
     handleInputChange,
     reload,
     stop,
+    setMessages,
   } = useChat({
-    api: process.env.NEXT_PUBLIC_CHAT_API,
+    api: `${envConfig.apiURL}/chat`,
     headers: {
       "Content-Type": "application/json", // using JSON because of vercel/ai 2.2.26
     },
@@ -30,6 +36,7 @@ export default function ChatSection() {
       <ChatInput
         input={input}
         handleSubmit={handleSubmit}
+        setInput={setInput}
         handleInputChange={handleInputChange}
         isLoading={isLoading}
         multiModal={process.env.NEXT_PUBLIC_MODEL === "gpt-4-vision-preview"}

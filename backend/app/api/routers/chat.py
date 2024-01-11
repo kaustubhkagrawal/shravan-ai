@@ -1,4 +1,7 @@
 from typing import List
+import base64
+import whisper
+import tempfile
 
 from fastapi.responses import StreamingResponse
 from llama_index.chat_engine.types import BaseChatEngine
@@ -9,6 +12,10 @@ from llama_index.llms.base import ChatMessage
 from llama_index.llms.types import MessageRole
 from pydantic import BaseModel
 
+from app.prompts.system import SYSTEM_PROMPT
+
+system_prompt = ""
+
 chat_router = r = APIRouter()
 
 
@@ -17,14 +24,18 @@ class _Message(BaseModel):
     content: str
 
 
-class _ChatData(BaseModel):
+class _VoiceData(BaseModel):
+    audioUrl: str
+
+
+class ApiRequest(BaseModel):
     messages: List[_Message]
 
 
 @r.post("")
 async def chat(
     request: Request,
-    data: _ChatData,
+    data: ApiRequest,
     chat_engine: BaseChatEngine = Depends(get_chat_engine),
 ):
     # check preconditions and get last message
@@ -39,8 +50,12 @@ async def chat(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Last message must be from user",
         )
+
+    with open("app/prompts/system_prompt.txt", "r") as file:
+        system_prompt = file.read()
+
     # convert messages coming from the request to type ChatMessage
-    messages = [
+    messages = [ChatMessage(role=MessageRole.SYSTEM, content=system_prompt)] + [
         ChatMessage(
             role=m.role,
             content=m.content,
@@ -60,3 +75,35 @@ async def chat(
             yield token
 
     return StreamingResponse(event_generator(), media_type="text/plain")
+
+
+# define new router for transcribing voice input
+model = whisper.load_model("tiny")
+
+
+# Create a dependency that will provide the loaded model
+def get_model():
+    return model
+
+
+@r.post("/voice")
+async def voice(
+    voice_data: _VoiceData,
+    request: Request,
+    model: whisper.Whisper = Depends(get_model),  # Inject the model dependency
+) -> str:
+    _, voice_base_64 = voice_data.audioUrl.split(",", 1)
+    try:
+        # Decode base64 voice data
+        audio_bytes = base64.b64decode(voice_base_64)
+        # Write the audio data to a temporary file
+        with tempfile.NamedTemporaryFile(suffix=".webm") as temp:
+            temp.write(audio_bytes)
+            temp.seek(0)
+            result = model.transcribe(temp.name, language="en")
+        # Return the transcribed text
+        return result["text"]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )

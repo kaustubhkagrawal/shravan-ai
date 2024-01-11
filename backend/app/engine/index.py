@@ -7,6 +7,7 @@ from llama_index import (
 
 from app.engine.constants import STORAGE_DIR
 from app.engine.context import create_service_context
+from llama_index.chat_engine.types import BaseChatEngine, ChatMode
 
 
 def get_chat_engine():
@@ -22,4 +23,6 @@ def get_chat_engine():
     storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
     index = load_index_from_storage(storage_context, service_context=service_context)
     logger.info(f"Finished loading index from {STORAGE_DIR}")
-    return index.as_chat_engine()
+    # The line `return index.as_chat_engine(chat_mode= ChatMode, verbose=False)` is returning an
+    # instance of a chat engine.
+    return index.as_chat_engine(chat_mode= 'react', verbose=False)
