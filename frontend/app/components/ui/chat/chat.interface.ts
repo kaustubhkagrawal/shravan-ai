@@ -7,12 +7,13 @@ export interface Message {
 export interface ChatHandler {
   messages: Message[];
   input: string;
+  setInput?: (val: string) => void;
   isLoading: boolean;
   handleSubmit: (
     e: React.FormEvent<HTMLFormElement>,
     ops?: {
       data?: any;
-    },
+    }
   ) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   reload?: () => void;
