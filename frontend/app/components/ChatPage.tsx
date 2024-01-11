@@ -17,7 +17,8 @@ export function ChatPage() {
       .then((response) => {
         console.log(response.data);
         setEmotion(response.data);
-      });
+      })
+      .catch((err) => console.log(err));
   };
   return (
     <main className="flex min-h-screen  p-5 lg:p-12 background-gradient">
