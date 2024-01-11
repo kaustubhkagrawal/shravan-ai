@@ -2,7 +2,7 @@
   "name": "shravan-ai-cllama",
   "version": "0.1.0",
   "scripts": {
-    "dev": "cross-env NEXT_PUBLIC_CHAT_API=http://localhost:8000/api/chat next dev",
+    "dev": "cross-env NEXT_PUBLIC_CHAT_API=http://localhost:8000/api next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

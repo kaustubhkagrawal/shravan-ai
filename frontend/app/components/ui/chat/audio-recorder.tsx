@@ -5,12 +5,11 @@ import { Mic, MicOff, Square, StopCircle } from "lucide-react";
 import axios from "axios";
 import { envConfig } from "@/app/config/env.config";
 interface AudioRecorderProps {
-  setAudioUrl: (value: string) => void;
+  setAudioUrl: () => void;
   setInput?: (value: string) => void;
 }
 
-const AudioRecorder = ({ setInput }: AudioRecorderProps) => {
-  const [audioUrl, setAudioUrl] = useState("");
+const AudioRecorder = ({ setAudioUrl, setInput }: AudioRecorderProps) => {
   const [records, updateRecords] = useState<string[]>([]);
 
   const blobToBase64 = (blob: Blob) => {
@@ -32,11 +31,12 @@ const AudioRecorder = ({ setInput }: AudioRecorderProps) => {
 
   const transcribeAudio = (audioUrl: string) => {
     axios
-      .post(`${envConfig.apiURL}/voice`, {
+      .post(`${envConfig.apiURL}/chat/voice`, {
         audioUrl,
       })
       .then((response) => {
         setInput?.((response?.data as string) ?? "");
+        setAudioUrl();
       })
       .catch((err) => console.log(err));
   };

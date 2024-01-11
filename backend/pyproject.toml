@@ -14,7 +14,6 @@ pypdf = "^3.17.0"
 python-dotenv = "^1.0.0"
 transformers = "^4.36.2"
 requests-html = "^0.10.0"
-whisper = "^1.1.10"
 
 
 [build-system]

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../button";
 import FileUploader from "../file-uploader";
 import { Input } from "../input";
@@ -23,7 +23,9 @@ export default function ChatInput(
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-  const formRef = useRef<HTMLFormElement>(null);
+  const needsSubmit = useRef(false);
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (imageUrl) {
@@ -68,13 +70,22 @@ export default function ChatInput(
   //   }
   // };
 
-  const handleAudioRecorderStop = (audioUrl: string) => {
-    setAudioUrl(audioUrl);
+  const handleAudioRecorderStop = () => {
+    // buttonRef.current?.click();
+    needsSubmit.current = true;
   };
+
+  useEffect(() => {
+    if (needsSubmit.current) {
+      setTimeout(() => {
+        buttonRef.current?.click();
+      }, 100);
+      needsSubmit.current = false;
+    }
+  }, [props.input]);
 
   return (
     <form
-      ref={formRef}
       onSubmit={onSubmit}
       className="rounded-xl bg-white p-4 shadow-xl space-y-4"
     >
@@ -100,6 +111,7 @@ export default function ChatInput(
         /> */}
         <Button
           type="submit"
+          ref={buttonRef}
           className="disabled:bg-slate-500"
           disabled={props.isLoading}
         >
