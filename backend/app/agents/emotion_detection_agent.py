@@ -21,9 +21,9 @@ async def get_emotion_detection_output(chat_messages: str):
             " The conversation history is as follows:\n\n"
             "{{chat_messages}}\n"
         ),
-        # guidance_llm=Perplexity(
-        #     api_key=pplx_api_key, model="mistral-8x7b-instruct", temperature=1
-        # ),
+        llm=Perplexity(
+            api_key=pplx_api_key, model="mistral-8x7b-instruct", temperature=1
+        ),
         verbose=False,
     )
 
