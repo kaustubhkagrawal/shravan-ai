@@ -1,35 +1,38 @@
 import logging
 import os
 from typing import List
-from llama_index import (
-    SimpleDirectoryReader,
-    VectorStoreIndex,
-    StorageContext,
-    load_index_from_storage,
-)
+from llama_index.llms import Perplexity
 
 from app.engine.constants import STORAGE_DIR
 from app.engine.context import create_service_context
 from llama_index.chat_engine.types import BaseChatEngine, ChatMode
 from llama_index.agent import ReActAgent
 
-from llama_index.tools import QueryEngineTool, ToolMetadata
+from llama_index.program import GuidancePydanticProgram
 
 from app.api.routers.chat import _Message
 
+from pydantic import BaseModel
 
-def get_emotion_detection_agent(messages: List[_Message]):
-    service_context = create_service_context()
-    logger = logging.getLogger("uvicorn")
-    
+class EmotionOutput(BaseModel):
+    emotion: str
 
-    query_engine_tools = [
-        
-    ]
-    
-    agent = ReActAgent.from_tools(
-        query_engine_tools, llm=service_context.llm, verbose=True
+pplx_api_key = os.environ.get("PPLX_API_KEY", None)
+
+async def get_emotion_detection_output(chat_messages: str):
+    program = GuidancePydanticProgram(
+        output_cls=EmotionOutput,
+        prompt_template_str=(
+            "Generate an output emotional label among [angry, calm, fearful, happy, sad], given the conversation history so far."
+            " The conversation history is as follows:\n\n"
+            "{{chat_messages}}\n"
+        ),
+        guidance_llm=Perplexity(
+            api_key=pplx_api_key, model="mistral-8x7b-instruct", temperature=1
+        ),
+        verbose=False,
     )
-    # The line `return index.as_chat_engine(chat_mode= ChatMode, verbose=False)` is returning an
-    # instance of a chat engine.
-    return agent.as_chat_engine(chat_mode=ChatMode.REACT, verbose=True)
+
+    return program(conversation_history=chat_messages)
+
+

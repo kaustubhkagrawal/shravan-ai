@@ -12,7 +12,7 @@ from llama_index.llms.base import ChatMessage
 from llama_index.llms.types import MessageRole
 from pydantic import BaseModel
 
-from app.prompts.system import SYSTEM_PROMPT
+from app.agents.emotion_detection_agent import get_emotion_detection_output
 
 system_prompt = ""
 
@@ -107,3 +107,21 @@ async def voice(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
+
+@r.post("/emotion")
+
+async def emotion(
+    request: Request,
+    data: ApiRequest,
+):
+    if len(data.messages) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No messages provided",
+        )
+    try:
+        concatenated_messages = "\n".join(message.content for message in data.messages)
+        emotion_output = await get_emotion_detection_output(concatenated_messages)
+        return emotion_output.emotion
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
