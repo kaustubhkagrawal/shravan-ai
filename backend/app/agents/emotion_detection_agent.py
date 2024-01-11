@@ -23,7 +23,7 @@ async def get_emotion_detection_output(chat_messages: str):
             "{{chat_messages}}\n"
         ),
         llm=Perplexity(
-            api_key=pplx_api_key, model="mistral-8x7b-instruct", temperature=0
+            api_key=pplx_api_key, model="mistral-7b-instruct", temperature=0
         ),
         verbose=False,
     )
